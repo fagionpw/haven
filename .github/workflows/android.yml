@@ -2,9 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "feature/telegram-support" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "feature/telegram-support" ]
 
 jobs:
   build:
@@ -23,5 +23,11 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Build UnLinted
-      run: ./gradlew build -x lint --warning-mode none
+    - name: Build with Gradle
+      run: ./gradlew assembleDebug --warning-mode none
+      
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: Haven-Telegram-debug
+        path: build/outputs/apk/debug/*.apk
