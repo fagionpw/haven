@@ -15,12 +15,16 @@ buildscript {
 
 /* gets the version name from the latest Git tag, stripping the leading v off */
 def getVersionName = { ->
-    def stdout = new ByteArrayOutputStream()
-    exec {
-        commandLine 'git', 'describe', '--tags', '--always', '--abbrev=0'
-        standardOutput = stdout
+    try {
+        def stdout = new ByteArrayOutputStream()
+        project.exec {
+            commandLine 'git', 'describe', '--tags', '--always', '--abbrev=0'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    } catch (Exception e) {
+        return "1.0.0"
     }
-    return stdout.toString().trim()
 }
 
 apply plugin: 'com.android.application'
@@ -37,7 +41,6 @@ allprojects {
     }
 
     project.ext {
-        version_number = getVersionName()
         group_info = "haven"
         buildToolsVersion = "30.0.2"
         minSdkVersion = 24
@@ -46,34 +49,31 @@ allprojects {
 }
 
 android {
+    namespace 'org.havenapp.main'
+    compileSdk 34
+    
+    base {
+        archivesName = "Haven-1.0.0"
+    }
 
     tasks.withType(JavaCompile) {
         options.compilerArgs += ["-Xlint:unchecked"]
     }
 
-    compileSdkVersion 34
-
     buildFeatures {
         viewBinding true
     }
+
     packagingOptions {
         resources {
             excludes += ['META-INF/LICENSE.txt', 'META-INF/NOTICE.txt', 'META-INF/DEPENDENCIES', 'META-INF/NOTICE', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE.txt']
         }
     }
 
-    configurations.all {
-        resolutionStrategy {
-            force 'androidx.work:work-runtime:2.8.1'
-            force 'androidx.work:work-runtime-ktx:2.8.1'  // Update to match work-runtime version
-        }
-    }
-
     defaultConfig {
         applicationId "org.havenapp.main"
         versionCode 2001
-        versionName getVersionName()
-        archivesBaseName = "Haven-$versionName"
+        versionName "1.0.0"
         minSdkVersion 24
         targetSdkVersion 34
         ndkVersion '25.0.8775105'
@@ -105,14 +105,12 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
-        // Enable core library desugaring
         coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
-        jvmTarget = "17"  // Change from "11"
+        jvmTarget = "17"
     }
-
 
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
@@ -121,7 +119,6 @@ android {
         abortOnError false
         checkReleaseBuilds false
     }
-    namespace 'org.havenapp.main'
 }
 
 configurations {
@@ -129,14 +126,7 @@ configurations {
 }
 
 dependencies {
-    // Core library desugaring
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
-
-    // Matrix Android SDK - exclude conflicting work manager
-//    implementation('org.matrix.android:matrix-android-sdk2:1.2.1') {
-//        exclude group: 'androidx.work', module: 'work-runtime-ktx'
-//        exclude group: 'androidx.work', module: 'work-runtime'
-//    }
 
     implementation 'androidx.work:work-runtime:2.8.1'
     implementation 'androidx.work:work-runtime-ktx:2.8.1'
@@ -151,13 +141,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.13.1'
     implementation 'com.wdullaer:materialdatetimepicker:4.2.3'
 
-//    // Signal Protocol
     implementation 'com.github.guardianproject:signal-cli-android:v0.6.0-android-beta-1'
-//    implementation 'org.signal:libsignal-android:0.78.2'
-//    implementation 'com.github.WhisperSystems:libsignal-service-java:v1.8.6'
-//    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 
-    // Additional crypto libraries
     implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
     implementation 'net.the4thdimension:audio-wife:1.0.3'
     implementation 'com.github.AppIntro:AppIntro:5.1.0'
@@ -177,10 +162,8 @@ dependencies {
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
     implementation 'com.github.shenguojun:renderscript-intrinsics-replacement-toolkit:main-SNAPSHOT'
 
-    // Match Kotlin version
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    // Room
     implementation 'androidx.room:room-runtime:2.7.2'
     kapt 'androidx.room:room-compiler:2.7.2'
     implementation 'androidx.room:room-ktx:2.7.2'
@@ -188,7 +171,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     implementation 'androidx.lifecycle:lifecycle-common-java8:2.9.2'
 
-    // Test helpers
     testImplementation 'androidx.room:room-testing:2.7.2'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.7.0'
@@ -198,9 +180,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.7.0'
     androidTestImplementation 'androidx.room:room-testing:2.7.2'
 
-    // android-job
     implementation 'com.evernote:android-job:1.4.3'
-
-    // new camera view: https://github.com/natario1/CameraView
     implementation 'com.otaliastudios:cameraview:2.7.2'
 }

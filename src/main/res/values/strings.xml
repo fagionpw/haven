@@ -188,9 +188,17 @@
     <string name="telegram_enabled">Enable Telegram Alerts</string>
     <string name="telegram_bot_token">Bot Token</string>
     <string name="telegram_chat_id">Chat ID</string>
+    <string name="telegram_get_chat_id">Get Chat ID automatically</string>
+    <string name="telegram_get_chat_id_summary">Click here after sending any message to your bot</string>
+    <string name="telegram_chat_id_found">Chat ID found and saved!</string>
+    <string name="telegram_chat_id_error">Could not find Chat ID. Send a message to the bot first.</string>
+    <string name="telegram_token_missing">Please enter Bot Token first</string>
     <string name="telegram_bot_token_hint">Enter your Telegram Bot Token</string>
     <string name="telegram_chat_id_hint">Enter your Telegram Chat ID</string>
     <string name="telegram_dialog_summary">Send alerts to a Telegram chat</string>
+    <string name="telegram_test_message">This is a test message from Haven to your Telegram chat!</string>
+    <string name="send_telegram_test_message">Test Telegram notification…</string>
+    <string name="setup_telegram_toast">Please set up Telegram notifications from the settings</string>
 
 
 </resources>
