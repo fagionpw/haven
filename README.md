@@ -88,8 +88,11 @@ When one of the sensors is triggered (reaches the configured sensitivity thresho
 
 - SMS: a message is sent to the number specified when monitoring started
 - Signal: if configured, can send end-to-end encryption notifications via Signal
+- Telegram: can send alerts with text and captured media (photos, audio, video) via Telegram Bot API
 
 Note that it is not necessary to install the Signal app on the device that runs Haven. Doing so may invalidate the app's previous Signal registration and safety numbers. Haven uses normal APIs to communicate via Signal.
+
+For Telegram, you need to provide a Bot Token and a Chat ID. You can use the "Get Chat ID automatically" feature in settings after sending a message to your bot.
 
 Notifications are sent through a service running in the background that is defined in class `MonitorService`.
 
