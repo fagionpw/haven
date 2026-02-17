@@ -187,6 +187,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             findPreference(PreferenceManager.HEARTBEAT_MONITOR_MESSAGE).setSummary(R.string.hearbeat_message_summary_on);
         }
 
+        if (checkValidString(preferences.getTelegramBotToken())) {
+            findPreference("telegram_bot_token").setSummary(preferences.getTelegramBotToken());
+        }
+        if (checkValidString(preferences.getTelegramChatId())) {
+            findPreference("telegram_chat_id").setSummary(preferences.getTelegramChatId());
+        }
+
         Preference prefCameraSensitivity = findPreference(PreferenceManager.CAMERA_SENSITIVITY);
         prefCameraSensitivity.setOnPreferenceClickListener(preference -> {
             startActivity(new Intent(mActivity, CameraConfigureActivity.class));
@@ -329,6 +336,15 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         boolean heartbeatMonitorActive = ((SwitchPreference) findPreference(PreferenceManager.HEARTBEAT_MONITOR_ACTIVE)).isChecked();
 
         preferences.activateHeartbeat(heartbeatMonitorActive);
+
+        boolean telegramEnabled = ((SwitchPreference) findPreference("telegram_enabled")).isChecked();
+        preferences.setTelegramEnabled(telegramEnabled);
+
+        String botToken = ((EditTextPreference) findPreference("telegram_bot_token")).getText();
+        preferences.setTelegramBotToken(botToken != null ? botToken.trim() : "");
+
+        String chatId = ((EditTextPreference) findPreference("telegram_chat_id")).getText();
+        preferences.setTelegramChatId(chatId != null ? chatId.trim() : "");
 
         mActivity.setResult(AppCompatActivity.RESULT_OK);
         mActivity.finish();
@@ -541,6 +557,30 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 else {
                     preferences.setHeartbeatMonitorMessage(null);
                     findPreference(PreferenceManager.HEARTBEAT_MONITOR_MESSAGE).setSummary(R.string.hearbeat_message_summary);
+                }
+                break;
+            }
+            case "telegram_bot_token": {
+                EditTextPreference preference = findPreference("telegram_bot_token");
+                String text = preference.getText();
+                if (checkValidString(text)) {
+                    preferences.setTelegramBotToken(text.trim());
+                    preference.setSummary(text.trim());
+                } else {
+                    preferences.setTelegramBotToken("");
+                    preference.setSummary(R.string.telegram_bot_token_hint);
+                }
+                break;
+            }
+            case "telegram_chat_id": {
+                EditTextPreference preference = findPreference("telegram_chat_id");
+                String text = preference.getText();
+                if (checkValidString(text)) {
+                    preferences.setTelegramChatId(text.trim());
+                    preference.setSummary(text.trim());
+                } else {
+                    preferences.setTelegramChatId("");
+                    preference.setSummary(R.string.telegram_chat_id_hint);
                 }
                 break;
             }

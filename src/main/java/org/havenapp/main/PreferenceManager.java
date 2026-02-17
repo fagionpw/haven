@@ -202,6 +202,34 @@ public class PreferenceManager {
         prefsEditor.commit();
     }
 
+    // Telegram preferences
+    public String getTelegramBotToken() {
+        return appSharedPrefs.getString("telegram_bot_token", "");
+    }
+
+    public void setTelegramBotToken(String token) {
+        prefsEditor.putString("telegram_bot_token", token);
+        prefsEditor.commit();
+    }
+
+    public String getTelegramChatId() {
+        return appSharedPrefs.getString("telegram_chat_id", "");
+    }
+
+    public void setTelegramChatId(String chatId) {
+        prefsEditor.putString("telegram_chat_id", chatId);
+        prefsEditor.commit();
+    }
+
+    public boolean getTelegramEnabled() {
+        return appSharedPrefs.getBoolean("telegram_enabled", false);
+    }
+
+    public void setTelegramEnabled(boolean enabled) {
+        prefsEditor.putBoolean("telegram_enabled", enabled);
+        prefsEditor.commit();
+    }
+
 
 
     /**
