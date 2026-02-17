@@ -24,6 +24,7 @@ public class AlertManager {
         channels.add(new MatrixAlertChannel(context));
         channels.add(new BriarAlertChannel(context));
         channels.add(new SessionAlertChannel(context));
+        channels.add(new TelegramAlertChannel(context));
     }
 
     public void sendAlert(String message, String mediaPath, int eventType) {

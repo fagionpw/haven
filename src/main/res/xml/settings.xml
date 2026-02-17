@@ -122,6 +122,33 @@
     </PreferenceCategory>
     <PreferenceCategory
         app:iconSpaceReserved="false"
+        android:title="@string/telegram_settings">
+
+        <SwitchPreference
+            app:iconSpaceReserved="false"
+            android:defaultValue="false"
+            android:key="telegram_enabled"
+            android:title="@string/telegram_enabled" />
+
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            android:dialogLayout="@layout/pref_dialog_edit_text"
+            android:dialogMessage="@string/telegram_bot_token_hint"
+            android:key="telegram_bot_token"
+            android:summary="@string/telegram_bot_token_hint"
+            android:title="@string/telegram_bot_token" />
+
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            android:dialogLayout="@layout/pref_dialog_edit_text"
+            android:dialogMessage="@string/telegram_chat_id_hint"
+            android:key="telegram_chat_id"
+            android:summary="@string/telegram_chat_id_hint"
+            android:title="@string/telegram_chat_id" />
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
         android:title="@string/hearbeat_monitor">
 
         <SwitchPreference

@@ -183,5 +183,14 @@
     <string name="configure_sensors_title">Configure Sensors</string>
     <string name="sensors_configured">Sensors configured successfully!</string>
 
+    <!-- Telegram Notifications -->
+    <string name="telegram_settings">Telegram Notifications</string>
+    <string name="telegram_enabled">Enable Telegram Alerts</string>
+    <string name="telegram_bot_token">Bot Token</string>
+    <string name="telegram_chat_id">Chat ID</string>
+    <string name="telegram_bot_token_hint">Enter your Telegram Bot Token</string>
+    <string name="telegram_chat_id_hint">Enter your Telegram Chat ID</string>
+    <string name="telegram_dialog_summary">Send alerts to a Telegram chat</string>
+
 
 </resources>
