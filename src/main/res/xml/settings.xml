@@ -138,6 +138,12 @@
             android:summary="@string/telegram_bot_token_hint"
             android:title="@string/telegram_bot_token" />
 
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="telegram_get_chat_id"
+            android:title="@string/telegram_get_chat_id"
+            android:summary="@string/telegram_get_chat_id_summary" />
+
         <EditTextPreference
             app:iconSpaceReserved="false"
             android:dialogLayout="@layout/pref_dialog_edit_text"

@@ -28,6 +28,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,6 +52,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.mikepenz.aboutlibraries.Libs;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
+import org.havenapp.main.alerts.TelegramAlertChannel;
 import org.havenapp.main.database.HavenEventDB;
 import org.havenapp.main.database.async.EventDeleteAllAsync;
 import org.havenapp.main.database.async.EventDeleteAsync;
@@ -329,6 +331,9 @@ public class ListActivity extends AppCompatActivity {
             case R.id.action_test_notification:
                 testNotifications();
                 break;
+            case R.id.action_test_telegram_notification:
+                testTelegramNotifications();
+                break;
             case R.id.action_run_cleanup_job:
                 runCleanUpJob();
                 break;
@@ -388,6 +393,22 @@ public class ListActivity extends AppCompatActivity {
                     null, null);
         } else {
             Toast.makeText(this, getString(R.string.setup_signal_toast), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void testTelegramNotifications() {
+        if (!TextUtils.isEmpty(preferences.getTelegramBotToken()) && !TextUtils.isEmpty(preferences.getTelegramChatId())) {
+            new Thread(() -> {
+                try {
+                    TelegramAlertChannel telegramChannel = new TelegramAlertChannel(this);
+                    telegramChannel.sendAlert(resourceManager.getString(R.string.telegram_test_message), null, -1);
+                    runOnUiThread(() -> Toast.makeText(this, "Telegram test message sent!", Toast.LENGTH_SHORT).show());
+                } catch (Exception e) {
+                    runOnUiThread(() -> Toast.makeText(this, "Failed to send Telegram message: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                }
+            }).start();
+        } else {
+            Toast.makeText(this, getString(R.string.setup_telegram_toast), Toast.LENGTH_SHORT).show();
         }
     }
 }

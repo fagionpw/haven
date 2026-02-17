@@ -35,6 +35,9 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
@@ -45,7 +48,11 @@ import org.havenapp.main.ui.AccelConfigureActivity;
 import org.havenapp.main.ui.CameraConfigureActivity;
 import org.havenapp.main.ui.MicrophoneConfigureActivity;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Locale;
 
 import info.guardianproject.netcipher.proxy.OrbotHelper;
@@ -56,6 +63,62 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     private PreferenceManager preferences;
     private HavenApp app;
     private AppCompatActivity mActivity;
+
+    private void fetchTelegramChatId() {
+        String botToken = preferences.getTelegramBotToken();
+        if (TextUtils.isEmpty(botToken)) {
+            Toast.makeText(getContext(), R.string.telegram_token_missing, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ProgressDialog progressDialog = ProgressDialog.show(getContext(), "", getString(R.string.please_wait));
+
+        new Thread(() -> {
+            try {
+                URL url = new URL("https://api.telegram.org/bot" + botToken + "/getUpdates?limit=1&offset=-1");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
+                JsonArray result = jsonResponse.getAsJsonArray("result");
+
+                if (result.size() > 0) {
+                    JsonObject update = result.get(0).getAsJsonObject();
+                    JsonObject message = update.has("message") ? update.getAsJsonObject("message") : update.getAsJsonObject("edited_message");
+                    String chatId = message.getAsJsonObject("chat").get("id").getAsString();
+
+                    mActivity.runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        preferences.setTelegramChatId(chatId);
+                        EditTextPreference chatPref = findPreference("telegram_chat_id");
+                        if (chatPref != null) {
+                            chatPref.setText(chatId);
+                            chatPref.setSummary(chatId);
+                        }
+                        Toast.makeText(getContext(), R.string.telegram_chat_id_found, Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    mActivity.runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        Toast.makeText(getContext(), R.string.telegram_chat_id_error, Toast.LENGTH_LONG).show();
+                    });
+                }
+            } catch (Exception e) {
+                mActivity.runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }
+        }).start();
+    }
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
@@ -193,6 +256,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         if (checkValidString(preferences.getTelegramChatId())) {
             findPreference("telegram_chat_id").setSummary(preferences.getTelegramChatId());
         }
+
+        findPreference("telegram_get_chat_id").setOnPreferenceClickListener(preference -> {
+            fetchTelegramChatId();
+            return true;
+        });
 
         Preference prefCameraSensitivity = findPreference(PreferenceManager.CAMERA_SENSITIVITY);
         prefCameraSensitivity.setOnPreferenceClickListener(preference -> {
