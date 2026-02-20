@@ -71,7 +71,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             return;
         }
 
-        ProgressDialog progressDialog = ProgressDialog.show(getContext(), "", getString(R.string.please_wait));
+        final ProgressDialog progressDialog = ProgressDialog.show(getContext(), "", getString(R.string.please_wait));
 
         new Thread(() -> {
             try {
@@ -90,32 +90,38 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
                 JsonArray result = jsonResponse.getAsJsonArray("result");
 
-                if (result.size() > 0) {
+                if (result != null && result.size() > 0) {
                     JsonObject update = result.get(0).getAsJsonObject();
                     JsonObject message = update.has("message") ? update.getAsJsonObject("message") : update.getAsJsonObject("edited_message");
-                    String chatId = message.getAsJsonObject("chat").get("id").getAsString();
+                    final String chatId = message.getAsJsonObject("chat").get("id").getAsString();
 
-                    mActivity.runOnUiThread(() -> {
-                        progressDialog.dismiss();
-                        preferences.setTelegramChatId(chatId);
-                        EditTextPreference chatPref = findPreference("telegram_chat_id");
-                        if (chatPref != null) {
-                            chatPref.setText(chatId);
-                            chatPref.setSummary(chatId);
-                        }
-                        Toast.makeText(getContext(), R.string.telegram_chat_id_found, Toast.LENGTH_SHORT).show();
-                    });
+                    if (mActivity != null && !mActivity.isFinishing()) {
+                        mActivity.runOnUiThread(() -> {
+                            progressDialog.dismiss();
+                            preferences.setTelegramChatId(chatId);
+                            EditTextPreference chatPref = findPreference("telegram_chat_id");
+                            if (chatPref != null) {
+                                chatPref.setText(chatId);
+                                chatPref.setSummary(chatId);
+                            }
+                            Toast.makeText(getContext(), R.string.telegram_chat_id_found, Toast.LENGTH_SHORT).show();
+                        });
+                    }
                 } else {
+                    if (mActivity != null && !mActivity.isFinishing()) {
+                        mActivity.runOnUiThread(() -> {
+                            progressDialog.dismiss();
+                            Toast.makeText(getContext(), R.string.telegram_chat_id_error, Toast.LENGTH_LONG).show();
+                        });
+                    }
+                }
+            } catch (final Exception e) {
+                if (mActivity != null && !mActivity.isFinishing()) {
                     mActivity.runOnUiThread(() -> {
                         progressDialog.dismiss();
-                        Toast.makeText(getContext(), R.string.telegram_chat_id_error, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), getString(R.string.error_prefix, e.getMessage()), Toast.LENGTH_LONG).show();
                     });
                 }
-            } catch (Exception e) {
-                mActivity.runOnUiThread(() -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
             }
         }).start();
     }
